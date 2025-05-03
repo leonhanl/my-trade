@@ -6,6 +6,7 @@ from portfolio_backtest import PortfolioBacktest, check_portfolio_config
 from portfolio_analyzer import PortfolioAnalyzer
 from trading_products import TRADING_PRODUCTS
 import matplotlib.pyplot as plt
+from portfolio_visualizer import PortfolioVisualizer
 
 # 示例投资组合配置
 PORTFOLIO_CONFIG = {
@@ -24,21 +25,39 @@ def main():
     """
     主函数：运行回测并输出结果
     """
+    # 回测配置
+    config = {
+        'target_percentage': {
+            'SPY': 0.2,  # 标普500ETF
+            '090010': 0.2,   # 大成中证红利
+            '518880': 0.2,  # 黄金ETF
+            '070009': 0.4,  # 嘉实超短债债券基金
+        },
+        'start_date': '2013-08-01',
+        'end_date': '2025-04-30',
+        'initial_total_value': 100000,
+        'show_plot': True
+    }
+    
     # 检查配置
-    error_code, error_message = check_portfolio_config(PORTFOLIO_CONFIG)
+    error_code, error_msg = check_portfolio_config(config)
     if error_code != 0:
-        print(error_message)
-        return error_code
-
+        print(error_msg)
+        return
+        
     # 创建回测实例
-    backtest = PortfolioBacktest(PORTFOLIO_CONFIG)
+    backtest = PortfolioBacktest(config)
     
     # 运行回测
-    backtest.run_rebalance_backtest('DRIFT_REBALANCE')
+    backtest.run_rebalance_backtest('ANNUAL_REBALANCE')
     
-    # 获取结果
+    # 获取回测结果
     results = backtest.get_results()
     
+    # 使用可视化器绘制结果
+    visualizer = PortfolioVisualizer()
+    visualizer.plot_portfolio_returns(results, 'portfolio_return_analysis.png')
+
     # 创建分析器实例
     analyzer = PortfolioAnalyzer(results)
     
@@ -56,9 +75,6 @@ def main():
     for i, drawdown in enumerate(max_drawdowns, 1):
         print(f"\n第{i}大回撤:")
         print(f"回撤幅度: {drawdown['max_drawdown']:.2f}%")
-    
-    # 绘制投资组合收益率图
-    backtest.plot_portfolio_returns()
     
     return 0
 
