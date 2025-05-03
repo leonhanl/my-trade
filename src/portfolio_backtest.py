@@ -95,6 +95,17 @@ class PortfolioBacktest:
         # 输出初始数据
         logger.debug("\n初始投资组合数据:\n" + str(self.portfolio_data))
         
+    def get_results(self) -> pd.DataFrame:
+        """
+        获取回测结果
+        
+        Returns:
+            DataFrame: 包含回测结果的数据框，包括每日价格、持仓数量、持仓价值和总价值
+        """
+        if self.portfolio_data is None:
+            raise ValueError("请先运行回测")
+        return self.portfolio_data 
+        
     def run_simple_backtest(self) -> None:
         """
         运行回测
@@ -188,13 +199,6 @@ class PortfolioBacktest:
         
         logger.debug("\n回测结果:\n" + str(self.portfolio_data))
 
-    def get_results(self) -> pd.DataFrame:
-        """
-        获取回测结果
-        
-        Returns:
-            DataFrame: 包含回测结果的数据框，包括每日价格、持仓数量、持仓价值和总价值
-        """
-        if self.portfolio_data is None:
-            raise ValueError("请先运行回测")
-        return self.portfolio_data 
+    
+
+   
