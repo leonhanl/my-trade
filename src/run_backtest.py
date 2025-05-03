@@ -6,7 +6,7 @@ from pprint import pprint
 from portfolio_backtest import PortfolioBacktest, check_portfolio_config
 from portfolio_analyzer import PortfolioAnalyzer
 from portfolio_visualizer import PortfolioVisualizer
-from portfolio_configs import configs
+from portfolio_configs import CONFIGS_REBALANCE_COMPARISON
 
 
 def run_portfolio_backtest(config: dict) -> None:
@@ -57,13 +57,13 @@ def main():
     主函数：运行回测并输出结果
     """
     # 检查配置
-    for config in configs:
+    for config in CONFIGS_REBALANCE_COMPARISON:
         error_code, error_msg = check_portfolio_config(config)
         if error_code != 0:
             print(error_msg)
             return error_code
 
-    for config in configs:
+    for config in CONFIGS_REBALANCE_COMPARISON:
         run_portfolio_backtest(config)
     
     return 0

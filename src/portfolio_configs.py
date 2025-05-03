@@ -4,7 +4,7 @@
 """
 
 # 回测配置列表
-configs = [
+CONFIGS_REBALANCE_COMPARISON = [
     {
         'target_percentage': {
             'SPY': 0.2,  # 标普500ETF
