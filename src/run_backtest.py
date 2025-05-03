@@ -3,6 +3,7 @@
 用于执行投资组合回测并输出分析结果
 """
 from portfolio_backtest import PortfolioBacktest, check_portfolio_config
+from portfolio_analyzer import PortfolioAnalyzer
 from trading_products import TRADING_PRODUCTS
 import matplotlib.pyplot as plt
 
@@ -38,8 +39,11 @@ def main():
     # 获取结果
     results = backtest.get_results()
     
+    # 创建分析器实例
+    analyzer = PortfolioAnalyzer(results)
+    
     # 分析结果
-    portfolio_return_analysis = backtest.calculate_portfolio_return()
+    portfolio_return_analysis = analyzer.calculate_portfolio_return()
     
     # 输出分析结果
     print("\n回测结果分析:")
@@ -47,7 +51,7 @@ def main():
     print(f"年化收益率: {portfolio_return_analysis['annualized_portfolio_return']*100:.2f}%")
 
     # 计算最大回撤
-    max_drawdowns = backtest.calculate_portfolio_max_drawdown()
+    max_drawdowns = analyzer.calculate_portfolio_max_drawdown()
     print("\n最大回撤分析:")
     for i, drawdown in enumerate(max_drawdowns, 1):
         print(f"\n第{i}大回撤:")
@@ -59,4 +63,4 @@ def main():
     return 0
 
 if __name__ == "__main__":
-    exit(main()) 
+    main() 
