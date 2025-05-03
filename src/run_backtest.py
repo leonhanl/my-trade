@@ -34,7 +34,6 @@ def main():
         'start_date': '2013-08-01',
         'end_date': '2025-04-30',
         'initial_total_value': 100000,
-        'show_plot': True
     }
     
     # 检查配置
