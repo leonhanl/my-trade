@@ -98,8 +98,7 @@ TRADING_PRODUCTS = {
         'earliest_date': '2016-09-27'
     },
 
-
-    
+   
 
     # 中国货币基金
     # '040003': {
