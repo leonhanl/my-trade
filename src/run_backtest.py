@@ -6,7 +6,7 @@ from pprint import pprint
 from portfolio_backtest import PortfolioBacktest, check_portfolio_config
 from portfolio_analyzer import PortfolioAnalyzer
 from portfolio_visualizer import PortfolioVisualizer
-from portfolio_configs import CONFIGS_REBALANCE_COMPARISON
+from portfolio_configs import CONFIGS_REBALANCE_COMPARISON, CONFIGS_CN_COMPARISON
 
 
 def run_portfolio_backtest(config: dict) -> None:
@@ -19,6 +19,13 @@ def run_portfolio_backtest(config: dict) -> None:
         print("-"*100)
         print("回测配置:")
         pprint(config)
+
+        # 打印投资组合中的产品名称
+        print("\n投资组合产品:")
+        from trading_products import TRADING_PRODUCTS
+        for symbol in config['target_percentage'].keys():
+            product_info = TRADING_PRODUCTS[symbol]
+            print(f"{symbol}: {product_info['name']}")
 
         # 创建回测实例
         backtest = PortfolioBacktest(config)
@@ -57,13 +64,13 @@ def main():
     主函数：运行回测并输出结果
     """
     # 检查配置
-    for config in CONFIGS_REBALANCE_COMPARISON:
+    for config in CONFIGS_CN_COMPARISON:
         error_code, error_msg = check_portfolio_config(config)
         if error_code != 0:
             print(error_msg)
             return error_code
 
-    for config in CONFIGS_REBALANCE_COMPARISON:
+    for config in CONFIGS_CN_COMPARISON:
         run_portfolio_backtest(config)
     
     return 0
