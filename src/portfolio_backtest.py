@@ -156,14 +156,14 @@ class PortfolioBacktest:
                 # 判断是否是1月1日
                 if current_date.month == 1 and previous_date.month == 12:
                     is_rebalance_day = True
-                    logger.info(f"年度再平衡日: {current_date}")
+                    logger.debug(f"年度再平衡日: {current_date}")
             elif rebalance_strategy == 'DRIFT_REBALANCE':  # 当某个资产的持仓价值偏离预设值的20%时进行再平衡 
                 for symbol in self.portfolio:
                     previous_value = self.portfolio_data.at[previous_date, f"{symbol}_value"]
                     target_value = self.config['target_percentage'][symbol] * self.portfolio_data.at[previous_date, 'total_value']
                     if abs(previous_value - target_value) / target_value > 0.2:
                         is_rebalance_day = True
-                        logger.info(f"日期: {current_date} {symbol} {TRADING_PRODUCTS[symbol]['name']} 持仓价值偏离预设值的20%,当前百分比为: {previous_value/target_value*100:.2f}%，进行再平衡")
+                        logger.debug(f"日期: {current_date} {symbol} {TRADING_PRODUCTS[symbol]['name']} 持仓价值偏离预设值的20%,当前百分比为: {previous_value/target_value*100:.2f}%，进行再平衡")
                         break
                
 

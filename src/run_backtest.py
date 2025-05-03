@@ -71,8 +71,7 @@ def main():
     max_drawdowns = analyzer.calculate_portfolio_max_drawdown()
     print("\n最大回撤分析:")
     for i, drawdown in enumerate(max_drawdowns, 1):
-        print(f"\n第{i}大回撤:")
-        print(f"回撤幅度: {drawdown['max_drawdown']:.2f}%")
+        print(f"第{i}大回撤 - 回撤幅度: {drawdown['max_drawdown']:.2f}%, 持续时间: {drawdown['drawdown_length']}天，恢复时间: {drawdown['recovery_length']}天")
     
     return 0
 
