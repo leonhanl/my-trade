@@ -1,5 +1,6 @@
 # 交易品种字典
 TRADING_PRODUCTS = {
+    # 美国
     'SPY': {
         'name': '标普500ETF-Invesco',
         'category': 'ETF',
@@ -42,6 +43,16 @@ TRADING_PRODUCTS = {
         'akshare_symbol': '105.NVDA',       
         'earliest_date': '2001-01-02'
     },
+
+    # 中国指数
+    '000001': {
+        'name': '上证指数',
+        'category': 'index',
+        'market': 'CN',
+        'earliest_date': '1990-12-19'
+    },
+
+    # 中国ETF
     '510300': {
         'name': '华泰柏瑞沪深300ETF',
         'category': 'ETF',
@@ -60,6 +71,8 @@ TRADING_PRODUCTS = {
         'market': 'CN',
         'earliest_date': '2013-07-29'
     },
+
+    # 中国基金
     '090010': {
         'name': '大成中证红利',
         'category': 'stock_fund',
@@ -85,15 +98,10 @@ TRADING_PRODUCTS = {
         'earliest_date': '2016-09-27'
     },
 
-    '000001': {
-        'name': '上证指数',
-        'category': 'index',
-        'market': 'CN',
-        'earliest_date': '1990-12-19'
-    },
+
     
 
-
+    # 中国货币基金
     # '040003': {
     #     'name': '华安现金富利投资基金',
     #     'category': 'money_fund',

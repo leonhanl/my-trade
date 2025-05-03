@@ -100,7 +100,7 @@ class PortfolioBacktest:
         获取回测结果
         
         Returns:
-            DataFrame: 包含回测结果的数据框，包括每日价格、持仓数量、持仓价值和总价值
+            DataFrame: 包含回测结果的 pandas.DataFrame，包括每日价格、持仓数量、持仓价值和总价值
         """
         if self.portfolio_data is None:
             raise ValueError("请先运行回测")
