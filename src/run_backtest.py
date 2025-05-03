@@ -2,10 +2,10 @@
 投资组合回测运行脚本
 用于执行投资组合回测并输出分析结果
 """
+from pprint import pprint
 from portfolio_backtest import PortfolioBacktest, check_portfolio_config
 from portfolio_analyzer import PortfolioAnalyzer
 from portfolio_visualizer import PortfolioVisualizer
-
 
 
 def run_portfolio_backtest(config: dict) -> None:
@@ -15,6 +15,10 @@ def run_portfolio_backtest(config: dict) -> None:
         Args:
             config: 回测配置字典
         """
+        print("-"*100)
+        print("回测配置:")
+        pprint(config)
+
         # 创建回测实例
         backtest = PortfolioBacktest(config)
         
@@ -35,7 +39,7 @@ def run_portfolio_backtest(config: dict) -> None:
         portfolio_return_analysis = analyzer.calculate_portfolio_return()
         
         # 输出分析结果
-        print("\n回测结果分析:")
+        print("\n回测结果分析")
         print(f"总收益率: {portfolio_return_analysis['portfolio_return']*100:.2f}%")
         print(f"年化收益率: {portfolio_return_analysis['annualized_portfolio_return']*100:.2f}%")
 
