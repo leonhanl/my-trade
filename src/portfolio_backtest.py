@@ -5,12 +5,25 @@
 import pandas as pd
 from datetime import datetime
 from typing import Dict, List
+import logging
 from trading_products import TRADING_PRODUCTS
 from data_loader import DataLoader
 from config_validator import check_portfolio_config
 
-DEBUG = True
+# 配置日志记录器
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
+# 创建控制台处理器
+console_handler = logging.StreamHandler()
+console_handler.setLevel(logging.INFO)
+
+# 创建格式化器
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+console_handler.setFormatter(formatter)
+
+# 将处理器添加到日志记录器
+logger.addHandler(console_handler)
 
 class PortfolioBacktest:
     def __init__(self, config: Dict):
@@ -80,9 +93,7 @@ class PortfolioBacktest:
         self.portfolio_data.at[self.portfolio_data.index[0], 'total_value'] = float(initial_total_value)
         
         # 输出初始数据
-        if DEBUG:
-            print("\n初始投资组合数据:")
-            print(self.portfolio_data)
+        logger.debug("\n初始投资组合数据:\n" + str(self.portfolio_data))
         
     def run_simple_backtest(self) -> None:
         """
@@ -115,9 +126,7 @@ class PortfolioBacktest:
                             for symbol in self.portfolio))
             self.portfolio_data.at[current_date, 'total_value'] = total_value
         
-        if DEBUG:
-            print("\n回测结果:")
-            print(self.portfolio_data)
+        logger.debug("\n回测结果:\n" + str(self.portfolio_data))
 
     def run_rebalance_backtest(self, rebalance_strategy: str) -> None:
         """
@@ -136,16 +145,14 @@ class PortfolioBacktest:
                 # 判断是否是1月1日
                 if current_date.month == 1 and previous_date.month == 12:
                     is_rebalance_day = True
-                    if DEBUG:
-                        print(f"年度再平衡日: {current_date}")
+                    logger.info(f"年度再平衡日: {current_date}")
             elif rebalance_strategy == 'DRIFT_REBALANCE':  # 当某个资产的持仓价值偏离预设值的20%时进行再平衡 
                 for symbol in self.portfolio:
                     previous_value = self.portfolio_data.at[previous_date, f"{symbol}_value"]
                     target_value = self.config['target_percentage'][symbol] * self.portfolio_data.at[previous_date, 'total_value']
                     if abs(previous_value - target_value) / target_value > 0.2:
                         is_rebalance_day = True
-                        if DEBUG:
-                            print(f"日期: {current_date} {symbol} {TRADING_PRODUCTS[symbol]['name']} 持仓价值偏离预设值的20%,当前百分比为: {previous_value/target_value*100:.2f}%，进行再平衡")
+                        logger.info(f"日期: {current_date} {symbol} {TRADING_PRODUCTS[symbol]['name']} 持仓价值偏离预设值的20%,当前百分比为: {previous_value/target_value*100:.2f}%，进行再平衡")
                         break
                
 
@@ -158,11 +165,10 @@ class PortfolioBacktest:
                     # 如果是再平衡日，根据目标比例重新计算持仓数量
                     previous_total_value = self.portfolio_data.at[previous_date, 'total_value']
                     share_number = previous_total_value * self.config['target_percentage'][symbol] / current_price
-                    if DEBUG:
-                        # 打印再平衡日持仓数量比例的变化
-                        previous_share_number = self.portfolio_data.at[previous_date, f"{symbol}_share_number"]
-                        change_percentage = (share_number - previous_share_number)/previous_share_number * 100
-                        print(f"{symbol} {TRADING_PRODUCTS[symbol]['name']} 持仓数量变化百分比: {change_percentage:.2f}%")
+                    # 打印再平衡日持仓数量比例的变化
+                    previous_share_number = self.portfolio_data.at[previous_date, f"{symbol}_share_number"]
+                    change_percentage = (share_number - previous_share_number)/previous_share_number * 100
+                    logger.debug(f"{symbol} {TRADING_PRODUCTS[symbol]['name']} 持仓数量变化百分比: {change_percentage:.2f}%")
 
                 else:
                     # 如果不是再平衡日，保持持仓数量不变
@@ -180,9 +186,7 @@ class PortfolioBacktest:
                             for symbol in self.portfolio))
             self.portfolio_data.at[current_date, 'total_value'] = total_value
         
-        if DEBUG:
-            print("\n回测结果:")
-            print(self.portfolio_data)
+        logger.debug("\n回测结果:\n" + str(self.portfolio_data))
 
     def get_results(self) -> pd.DataFrame:
         """

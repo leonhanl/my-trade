@@ -47,7 +47,8 @@ def main():
     backtest = PortfolioBacktest(config)
     
     # 运行回测
-    backtest.run_rebalance_backtest('ANNUAL_REBALANCE')
+    # backtest.run_rebalance_backtest('ANNUAL_REBALANCE')
+    backtest.run_rebalance_backtest('DRIFT_REBALANCE')
     
     # 获取回测结果
     results = backtest.get_results()
