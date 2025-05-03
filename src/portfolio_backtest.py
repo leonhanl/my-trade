@@ -8,6 +8,7 @@ from datetime import datetime
 from typing import Dict, List
 from trading_products import TRADING_PRODUCTS
 from data_loader import DataLoader
+from portfolio_analyzer import PortfolioAnalyzer
 from pprint import pprint
 
 # 设置matplotlib中文字体
