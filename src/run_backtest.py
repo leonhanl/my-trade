@@ -7,11 +7,6 @@ from portfolio_analyzer import PortfolioAnalyzer
 from portfolio_visualizer import PortfolioVisualizer
 
 
-
-
-
-
-
 def main():
     """
     主函数：运行回测并输出结果
@@ -27,8 +22,8 @@ def main():
         'start_date': '2013-08-01',
         'end_date': '2025-04-30',
         'initial_total_value': 100000,
-        'rebalance_strategy': 'ANNUAL_REBALANCE' # 可选参数为'DRIFT_REBALANCE'或'ANNUAL_REBALANCE'或者'NO_REBALANCE'
-        
+        'rebalance_strategy': 'DRIFT_REBALANCE', # 可选参数为'DRIFT_REBALANCE'或'ANNUAL_REBALANCE'或者'NO_REBALANCE'
+        'drift_threshold': 0.3 # 当某个资产的持仓价值偏离预设值的20%时进行再平衡, 当rebalance_strategy为'DRIFT_REBALANCE'时有效
     }
     
     # 检查配置

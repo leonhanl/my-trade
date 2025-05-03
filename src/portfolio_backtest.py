@@ -133,9 +133,9 @@ class PortfolioBacktest:
                 for symbol in self.portfolio:
                     previous_value = self.portfolio_data.at[previous_date, f"{symbol}_value"]
                     target_value = self.config['target_percentage'][symbol] * self.portfolio_data.at[previous_date, 'total_value']
-                    if abs(previous_value - target_value) / target_value > 0.2:
+                    if abs(previous_value - target_value) / target_value > self.config['drift_threshold']:
                         is_rebalance_day = True
-                        logger.debug(f"日期: {current_date} {symbol} {TRADING_PRODUCTS[symbol]['name']} 持仓价值偏离预设值的20%,当前百分比为: {previous_value/target_value*100:.2f}%，进行再平衡")
+                        logger.debug(f"日期: {current_date} {symbol} {TRADING_PRODUCTS[symbol]['name']} 持仓价值偏离预设值的{self.config['drift_threshold']*100}%，当前百分比为: {previous_value/target_value*100:.2f}%，进行再平衡")
                         break
                
 
