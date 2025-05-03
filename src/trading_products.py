@@ -85,6 +85,13 @@ TRADING_PRODUCTS = {
         'earliest_date': '2016-09-27'
     },
 
+    '000001': {
+        'name': '上证指数',
+        'category': 'index',
+        'market': 'CN',
+        'earliest_date': '1990-12-19'
+    },
+    
 
 
     # '040003': {

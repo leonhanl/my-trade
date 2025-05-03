@@ -84,11 +84,22 @@ def create_database():
     print(f"数据库 {db_path} 创建成功！")
 
    
-def update_us_stockprice_data_to_today(symbol):
-    """更新股票价格数据到最新日期"""
+def update_stock_price_data_to_today(symbol):
+    """更新股票价格数据到最新日期，支持美股、中国ETF、中国指数"""
     product_info = TRADING_PRODUCTS.get(symbol)
-    if not product_info or product_info['market'] != 'US':
-        print(f"未找到 {symbol} 的配置信息或不是美股")
+    if not product_info:
+        print(f"未找到 {symbol} 的配置信息")
+        return
+        
+    # 检查产品类型
+    if product_info['market'] == 'US':
+        pass  # 美股直接通过
+    elif product_info['market'] == 'CN':
+        if product_info['category'] not in ['ETF', 'index']:
+            print(f"{symbol} 不是中国ETF或中国指数")
+            return
+    else:
+        print(f"{symbol} 不支持的市场类型")
         return
         
     conn = sqlite3.connect('trade_data.db')
@@ -104,37 +115,45 @@ def update_us_stockprice_data_to_today(symbol):
     last_date = cursor.fetchone()[0] # 返回的是字符串类型，格式为 'YYYY-MM-DD'    
 
     if not last_date:
-        # 如果未找到历史数据,使用配置中的最早日期
         start_date = datetime.strptime(product_info['earliest_date'], '%Y-%m-%d').date()
         print(f"未找到 {symbol} {product_info['name']} 的历史数据,设定开始时间为 {start_date}")
     else:
-        # 如果找到历史数据,设定开始时间为最新数据日期的后一天
-        last_date = datetime.strptime(last_date, '%Y-%m-%d').date()
-        start_date = last_date + timedelta(days=1)
+        start_date = datetime.strptime(last_date, '%Y-%m-%d').date() + timedelta(days=1)
     
     # 设定end_date为当前日期
     end_date = date.today()
 
     # 如果start_date大于等于end_date,跳过更新
     if start_date >= end_date:
-        print(f"{symbol} 历史数据最新日期为 {last_date},已为最新,跳过更新")
+        print(f"{symbol} {product_info['name']} 历史数据最新日期为 {last_date},已为最新,跳过更新")
         return
     
-    # 获取新数据
-    stock_us_hist_df = ak.stock_us_hist(symbol=product_info['akshare_symbol'], period="daily", 
-                                       start_date=start_date.strftime('%Y%m%d'), 
-                                       end_date=end_date.strftime('%Y%m%d'), 
-                                       adjust="hfq")
+    try:
+        # 根据市场类型获取数据
+        if product_info['market'] == 'US':
+            hist_df = ak.stock_us_hist(symbol=product_info['akshare_symbol'], period="daily", 
+                                     start_date=start_date.strftime('%Y%m%d'), 
+                                     end_date=end_date.strftime('%Y%m%d'), 
+                                     adjust="hfq")
+        elif product_info['market'] == 'CN' and product_info['category'] == 'ETF':
+            hist_df = ak.fund_etf_hist_em(symbol=symbol, period="daily", 
+                                        start_date=start_date.strftime('%Y%m%d'), 
+                                        end_date=end_date.strftime('%Y%m%d'), 
+                                        adjust="hfq")
+        elif product_info['market'] == 'CN' and product_info['category'] == 'index':
+            hist_df = ak.index_zh_a_hist(symbol=symbol, period="daily", 
+                                         start_date=start_date.strftime('%Y%m%d'), 
+                                         end_date=end_date.strftime('%Y%m%d'))
+        
+            
+        if hist_df.empty:
+            print(f"{symbol} {product_info['name']} 没有发现 {start_date} 到 {end_date} 的新数据, 可能是非交易日或者数据尚未更新，跳过更新")
+            return
 
-    if stock_us_hist_df.empty:
-        print(f"{symbol} {product_info['name']} 没有发现 {start_date} 到 {end_date} 的新数据, 可能是非交易日或者数据尚未更新，跳过更新")
-        return
+        print(f"开始更新 {symbol} {product_info['name']} 从 {hist_df['日期'].min()} 到 {hist_df['日期'].max()} 的数据...")
 
-    print(f"开始更新 {symbol} {product_info['name']} 从 {stock_us_hist_df['日期'].min()} 到 {stock_us_hist_df['日期'].max()} 的数据...")
-
-    try:        
         # 遍历DataFrame的每一行数据
-        for index, row in stock_us_hist_df.iterrows():
+        for index, row in hist_df.iterrows():
             cursor.execute('''
             INSERT INTO stock_price (
                 symbol,
@@ -168,10 +187,13 @@ def update_us_stockprice_data_to_today(symbol):
             ))
         
         conn.commit()
-        print(f"成功更新 {symbol} 历史价格数据")
+        print(f"成功更新 {symbol} {product_info['name']} 历史价格数据")
         
     except sqlite3.Error as e:
         print(f"价格数据更新错误: {e}")
+        conn.rollback()
+    except Exception as e:
+        print(f"获取数据错误: {e}")
         conn.rollback()
         
     finally:
@@ -249,96 +271,6 @@ def update_cn_fund_nav_to_today(symbol):
         conn.close()
 
 
-def update_cn_stock_etf_data_to_today(symbol):
-    """更新中国ETF数据到最新日期"""
-    product_info = TRADING_PRODUCTS.get(symbol)
-    if not product_info or product_info['market'] != 'CN' or product_info['category'] != 'ETF':
-        print(f"未找到 {symbol} 的配置信息或不是中国ETF")
-        return
-        
-    conn = sqlite3.connect('trade_data.db')
-    cursor = conn.cursor()
-
-    # 查询最新的数据日期
-    cursor.execute('''
-    SELECT MAX(trade_date) 
-    FROM stock_price 
-    WHERE symbol = ?
-    ''', (symbol,))
-    
-    last_date = cursor.fetchone()[0] # 返回的是字符串类型，格式为 'YYYY-MM-DD'    
-
-    if not last_date:
-        start_date = datetime.strptime(product_info['earliest_date'], '%Y-%m-%d').date()
-        print(f"未找到 {symbol} 的历史数据,设定开始时间为 {start_date}")
-    else:
-        start_date = datetime.strptime(last_date, '%Y-%m-%d').date() + timedelta(days=1)
-    
-    # 设定end_date为当前日期
-    end_date = date.today()
-
-    # 如果start_date大于等于end_date,跳过更新
-    if start_date >= end_date:
-        print(f"{symbol} {product_info['name']} 历史数据最新日期为 {last_date},已为最新,跳过更新")
-        return
-    
-    # 获取新数据
-    etf_hist_df = ak.fund_etf_hist_em(symbol=symbol, period="daily", 
-                                     start_date=start_date.strftime('%Y%m%d'), 
-                                     end_date=end_date.strftime('%Y%m%d'), 
-                                     adjust="hfq")
-    if etf_hist_df.empty:
-        print(f"{symbol} {product_info['name']} 没有发现 {start_date} 到 {end_date} 的新数据, 可能是非交易日或者数据尚未更新，跳过更新")
-        return
-    
-    print(f"开始更新 {symbol} {product_info['name']} 从 {etf_hist_df['日期'].min()} 到 {etf_hist_df['日期'].max()} 的数据...")
-
-    try:        
-        # 遍历DataFrame的每一行数据
-        for index, row in etf_hist_df.iterrows():
-            cursor.execute('''
-            INSERT INTO stock_price (
-                symbol,
-                name,
-                trade_date,
-                open,
-                close, 
-                high,
-                low,
-                volume,
-                amount,
-                amplitude,
-                change_percent,
-                change_amount,
-                turnover_rate
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ''', (
-                symbol,
-                product_info['name'],
-                row['日期'],
-                row['开盘'],
-                row['收盘'],
-                row['最高'],
-                row['最低'],
-                row['成交量'],
-                row['成交额'],
-                row['振幅'],
-                row['涨跌幅'],
-                row['涨跌额'],
-                row['换手率']
-            ))
-        
-        conn.commit()
-        print(f"成功更新 {symbol} {product_info['name']} 历史价格数据")
-        
-    except sqlite3.Error as e:
-        print(f"价格数据更新错误: {e}")
-        conn.rollback()
-        
-    finally:
-        conn.close()
-
-
 def create_unified_price_view():
     """创建统一的价格视图，合并股票价格和基金净值数据"""
     conn = sqlite3.connect('trade_data.db')
@@ -373,12 +305,9 @@ if __name__ == "__main__":
     # 创建统一价格视图
     create_unified_price_view()
 
-
     for symbol, info in TRADING_PRODUCTS.items():
-        if info['market'] == 'US':
-            update_us_stockprice_data_to_today(symbol)
-        elif info['market'] == 'CN' and info['category'] == 'ETF':
-            update_cn_stock_etf_data_to_today(symbol)
+        if info['market'] == 'US' or (info['market'] == 'CN' and info['category'] in ['ETF', 'index']):
+            update_stock_price_data_to_today(symbol)
         elif info['market'] == 'CN' and info['category'] in ['stock_fund', 'bond_fund']:
             update_cn_fund_nav_to_today(symbol)
 
