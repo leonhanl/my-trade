@@ -53,27 +53,8 @@ def main():
         print(f"\n第{i}大回撤:")
         print(f"回撤幅度: {drawdown['max_drawdown']:.2f}%")
     
-    # 绘制投资组合总价值的相对收益率
-    plt.figure(figsize=(12, 6))
-    
-    # 绘制投资组合总价值的相对收益率
-    initial_total_value = results['total_value'].iloc[0]
-    normalized_total_value = results['total_value'] / initial_total_value * 100
-    plt.plot(results.index, normalized_total_value, label='投资组合总价值', linewidth=2)
-    
-    # 绘制各个资产的相对收益率
-    for symbol in backtest.portfolio:
-        initial_price = results[f"{symbol}_close"].iloc[0]
-        normalized_price = results[f"{symbol}_close"] / initial_price * 100
-        plt.plot(results.index, normalized_price, label=f"{symbol} ({TRADING_PRODUCTS[symbol]['name']})")
-    
-    plt.title('投资组合及各资产相对收益率变化')
-    plt.xlabel('日期')
-    plt.ylabel('相对收益率(%)')
-    plt.grid(True)
-    plt.legend()
-    plt.tight_layout()
-    plt.savefig('portfolio_return_analysis.png')
+    # 绘制投资组合收益率图
+    backtest.plot_portfolio_returns()
     
     return 0
 
