@@ -133,12 +133,12 @@ class PortfolioAnalyzer:
             if not is_overlapping:
                 used_periods.append(current_period)
                 top_three_drawdowns.append({
-                    'max_drawdown': minima['value'],
-                    'peak_date': peak_date,
-                    'trough_date': trough_date,
-                    'recovery_date': recovery_date,
-                    'drawdown_length': len(series[peak_date:trough_date]),
-                    'recovery_length': len(series[trough_date:recovery_date]) if recovery_date else None
+                    'max_drawdown': minima['value'],  # 最大回撤幅度(%)
+                    'peak_date': peak_date,  # 回撤起始日期(高点)
+                    'trough_date': trough_date,  # 回撤结束日期(低点)
+                    'recovery_date': recovery_date,  # 恢复到高点的日期
+                    'drawdown_length': len(series[peak_date:trough_date]),  # 回撤持续天数
+                    'recovery_length': len(series[trough_date:recovery_date]) if recovery_date else None  # 恢复持续天数
                 })
         
         return top_three_drawdowns 
