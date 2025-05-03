@@ -4,8 +4,6 @@
 """
 from portfolio_backtest import PortfolioBacktest, check_portfolio_config
 from portfolio_analyzer import PortfolioAnalyzer
-from trading_products import TRADING_PRODUCTS
-import matplotlib.pyplot as plt
 from portfolio_visualizer import PortfolioVisualizer
 
 # 示例投资组合配置

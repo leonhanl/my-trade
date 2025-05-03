@@ -7,7 +7,6 @@ from datetime import datetime
 from typing import Dict, List
 from trading_products import TRADING_PRODUCTS
 from data_loader import DataLoader
-from pprint import pprint
 
 DEBUG = True
 
