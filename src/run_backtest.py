@@ -6,18 +6,11 @@ from portfolio_backtest import PortfolioBacktest, check_portfolio_config
 from portfolio_analyzer import PortfolioAnalyzer
 from portfolio_visualizer import PortfolioVisualizer
 
-# 示例投资组合配置
-PORTFOLIO_CONFIG = {
-    'target_percentage': {
-        'SPY': 0.2,  # 标普500ETF
-        '090010': 0.2,   # 大成中证红利
-        '518880': 0.2,  # 黄金ETF
-        '070009': 0.4,  # 嘉实超短债债券基金
-    },
-    'start_date': '2013-08-01',
-    'end_date': '2025-04-30',
-    'initial_total_value': 100000,
-}
+
+
+
+
+
 
 def main():
     """
@@ -34,6 +27,8 @@ def main():
         'start_date': '2013-08-01',
         'end_date': '2025-04-30',
         'initial_total_value': 100000,
+        'rebalance_strategy': 'ANNUAL_REBALANCE' # 可选参数为'DRIFT_REBALANCE'或'ANNUAL_REBALANCE'或者'NO_REBALANCE'
+        
     }
     
     # 检查配置
@@ -46,8 +41,7 @@ def main():
     backtest = PortfolioBacktest(config)
     
     # 运行回测
-    # backtest.run_rebalance_backtest('ANNUAL_REBALANCE')
-    backtest.run_rebalance_backtest('DRIFT_REBALANCE')
+    backtest.run_backtest()
     
     # 获取回测结果
     results = backtest.get_results()

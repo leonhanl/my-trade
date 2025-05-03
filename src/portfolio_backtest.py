@@ -106,53 +106,25 @@ class PortfolioBacktest:
             raise ValueError("请先运行回测")
         return self.portfolio_data 
         
-    def run_simple_backtest(self) -> None:
+    def run_backtest(self) -> None:
         """
-        运行回测
-        计算每日持仓变化和投资组合总价值
-        """
-        if self.portfolio_data is None:
-            self.initialize_portfolio()
-            
-        # 循环计算每天的持仓变化
-        for i in range(1, len(self.portfolio_data)):
-            current_date = self.portfolio_data.index[i]
-            previous_date = self.portfolio_data.index[i-1]
-            
-            # 计算每个资产的持仓变化
-            for symbol in self.portfolio:
-                # 获取当前价格
-                current_price = self.portfolio_data.at[current_date, f"{symbol}_close"]
-                
-                # 保持持仓数量不变（简单回测策略，不进行再平衡）
-                previous_shares = float(self.portfolio_data.at[previous_date, f"{symbol}_share_number"])
-                self.portfolio_data.at[current_date, f"{symbol}_share_number"] = previous_shares
-                
-                # 计算当前持仓价值：持仓数量 * 当前价格
-                current_value = float(previous_shares * current_price)
-                self.portfolio_data.at[current_date, f"{symbol}_value"] = current_value
-            
-            # 计算总价值：所有资产持仓价值之和
-            total_value = float(sum(self.portfolio_data.at[current_date, f"{symbol}_value"] 
-                            for symbol in self.portfolio))
-            self.portfolio_data.at[current_date, 'total_value'] = total_value
-        
-        logger.debug("\n回测结果:\n" + str(self.portfolio_data))
-
-    def run_rebalance_backtest(self, rebalance_strategy: str) -> None:
-        """
-        运行年化再平衡回测
-        每年1月1日进行再平衡，恢复到预设的目标比例
+        根据再平衡策略运行回测        
         """
         if self.portfolio_data is None:
             self.initialize_portfolio() 
+            
+        rebalance_strategy = self.config['rebalance_strategy']
+
             
         for i in range(1, len(self.portfolio_data)):
             current_date = self.portfolio_data.index[i]
             previous_date = self.portfolio_data.index[i-1]
             
             is_rebalance_day = False
-            if rebalance_strategy == 'ANNUAL_REBALANCE':
+            
+            if rebalance_strategy == 'NO_REBALANCE':
+                pass
+            elif rebalance_strategy == 'ANNUAL_REBALANCE':
                 # 判断是否是1月1日
                 if current_date.month == 1 and previous_date.month == 12:
                     is_rebalance_day = True
