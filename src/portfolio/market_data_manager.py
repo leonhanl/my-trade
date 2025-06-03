@@ -5,85 +5,6 @@ import pandas as pd
 from datetime import timedelta, date, datetime
 from trading_products import TRADING_PRODUCTS
 
-def create_database():
-    """创建交易数据库及相关表结构"""
-    # 数据库文件路径
-    db_path = 'trade_data.db'
-
-    # # 如果数据库文件已存在，直接退出
-    # if os.path.exists(db_path):
-    #     print("数据库文件已存在,跳过创建")
-    #     return
-
-    # 连接到数据库（如果不存在会自动创建）
-    conn = sqlite3.connect(db_path)
-    cursor = conn.cursor()
-
-    # 创建股票历史数据表
-    cursor.execute('''
-    CREATE TABLE IF NOT EXISTS stock_price (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        symbol VARCHAR(20) NOT NULL,
-        name VARCHAR(100) NOT NULL,
-        trade_date DATE NOT NULL,
-        open DECIMAL(10,2),
-        close DECIMAL(10,2),
-        high DECIMAL(10,2),
-        low DECIMAL(10,2),
-        volume BIGINT,
-        amount DECIMAL(20,2),
-        amplitude DECIMAL(10,2),
-        change_percent DECIMAL(10,2),
-        change_amount DECIMAL(10,2),
-        turnover_rate DECIMAL(10,2),
-        UNIQUE (symbol, trade_date)
-    )
-    ''')
-
-    # 创建基金净值表
-    cursor.execute('''
-    CREATE TABLE IF NOT EXISTS fund_nav (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        fund_code VARCHAR(20) NOT NULL,
-        name VARCHAR(100) NOT NULL,
-        nav_date DATE NOT NULL,
-        nav DECIMAL(10,4) NOT NULL,
-        UNIQUE (fund_code, nav_date)
-    )
-    ''')
-
-    # 创建索引以提高查询性能
-    cursor.execute('''
-    CREATE INDEX IF NOT EXISTS idx_stock_price_symbol ON stock_price(symbol)
-    ''')
-
-    cursor.execute('''
-    CREATE INDEX IF NOT EXISTS idx_stock_price_date ON stock_price(trade_date)
-    ''')
-
-    cursor.execute('''
-    CREATE INDEX IF NOT EXISTS idx_stock_price_symbol_date ON stock_price(symbol, trade_date)
-    ''')
-
-    cursor.execute('''
-    CREATE INDEX IF NOT EXISTS idx_fund_nav_code ON fund_nav(fund_code)
-    ''')
-
-    cursor.execute('''
-    CREATE INDEX IF NOT EXISTS idx_fund_nav_date ON fund_nav(nav_date)
-    ''')
-
-    cursor.execute('''
-    CREATE INDEX IF NOT EXISTS idx_fund_nav_code_date ON fund_nav(fund_code, nav_date)
-    ''')
-
-    # 提交事务并关闭连接
-    conn.commit()
-    conn.close()
-
-    print(f"数据库 {db_path} 创建成功！")
-
-   
 def update_stock_price_data_to_today(symbol):
     """更新股票价格数据到最新日期，支持美股、中国ETF、中国指数"""
     product_info = TRADING_PRODUCTS.get(symbol)
@@ -271,39 +192,11 @@ def update_cn_fund_nav_to_today(symbol):
         conn.close()
 
 
-def create_unified_price_view():
-    """创建统一的价格视图，合并股票价格和基金净值数据"""
-    conn = sqlite3.connect('trade_data.db')
-    cursor = conn.cursor()
-
-    # 创建视图
-    cursor.execute('''
-    CREATE VIEW IF NOT EXISTS unified_price_view AS
-    SELECT 
-        symbol as symbol,
-        name as name,
-        trade_date as date,
-        close as close
-    FROM stock_price
-    UNION ALL
-    SELECT 
-        fund_code as symbol,
-        name as name,
-        nav_date as date,
-        nav as close
-    FROM fund_nav
-    ''')
-
-    conn.commit()
-    conn.close()
-    print("统一价格视图创建成功！")
-
 if __name__ == "__main__":
-    # 创建数据库和表结构
-    # create_database()
-
-    # 创建统一价格视图
-    create_unified_price_view()
+    # 确保数据库文件存在
+    if not os.path.exists('trade_data.db'):
+        print("数据库文件不存在，请先创建数据库")
+        exit(1)
 
     for symbol, info in TRADING_PRODUCTS.items():
         if info['market'] == 'US' or (info['market'] == 'CN' and info['category'] in ['ETF', 'index']):
@@ -311,5 +204,4 @@ if __name__ == "__main__":
         elif info['market'] == 'CN' and info['category'] in ['stock_fund', 'bond_fund']:
             update_cn_fund_nav_to_today(symbol)
 
-    
-    
+
