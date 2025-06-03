@@ -50,3 +50,29 @@ SELECT
     nav_date as date,
     nav as close
 FROM fund_nav;
+
+
+-- 在 stock_price 表中添加 PE-TTM 列
+ALTER TABLE stock_price ADD COLUMN pe_ttm DECIMAL(10,2);
+
+
+-- 删除现有视图
+DROP VIEW IF EXISTS unified_price_view;
+
+-- 创建新的视图，包含 pe_ttm
+CREATE VIEW unified_price_view AS
+SELECT 
+    symbol as symbol,
+    name as name,
+    trade_date as date,
+    close as close,
+    pe_ttm as pe_ttm
+FROM stock_price
+UNION ALL
+SELECT 
+    fund_code as symbol,
+    name as name,
+    nav_date as date,
+    nav as close,
+    NULL as pe_ttm  -- 基金没有 PE-TTM，用 NULL 填充
+FROM fund_nav;

@@ -89,8 +89,9 @@ def update_stock_price_data_to_today(symbol):
                 amplitude,
                 change_percent,
                 change_amount,
-                turnover_rate
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                turnover_rate,
+                pe_ttm
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ''', (
                 symbol,
                 product_info['name'],
@@ -104,7 +105,8 @@ def update_stock_price_data_to_today(symbol):
                 row['振幅'],
                 row['涨跌幅'],
                 row['涨跌额'],
-                row['换手率']
+                row['换手率'],
+                None  # 先设置为 None，后续可以通过其他方式更新 PE-TTM 数据
             ))
         
         conn.commit()
