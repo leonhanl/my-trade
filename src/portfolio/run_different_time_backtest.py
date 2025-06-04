@@ -29,9 +29,9 @@ from pprint import pprint
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 import statistics
-from portfolio_backtest import PortfolioBacktest, check_portfolio_config
-from portfolio_analyzer import PortfolioAnalyzer
-from portfolio_visualizer import PortfolioVisualizer
+from portfolio.portfolio_backtest import PortfolioBacktest, check_portfolio_config
+from portfolio.portfolio_analyzer import PortfolioAnalyzer
+from portfolio.portfolio_visualizer import PortfolioVisualizer
 from common.trading_products import TRADING_PRODUCTS
 
 
@@ -49,53 +49,55 @@ CONFIG = {
     'drift_threshold': 0.2 # 当某个资产的持仓价值偏离预设值的20%时进行再平衡, 当rebalance_strategy为'DRIFT_REBALANCE'时有效
 }
 
-anualized_return_list = []
-max_drawdown_list = []
 
-# 从2013-08-01开始，每月1日，回测5年，最大为 2020-04-01
-start_date_list = []
-start_date = datetime.strptime('2013-08-01', '%Y-%m-%d')
-end_date = datetime.strptime('2020-04-01', '%Y-%m-%d')
+if __name__ == "__main__":
+    anualized_return_list = []
+    max_drawdown_list = []
 
-while start_date <= end_date:
-    start_date_list.append(start_date.strftime('%Y-%m-%d'))
-    start_date += relativedelta(months=1)    
+    # 从2013-08-01开始，每月1日，回测5年，最大为 2020-04-01
+    start_date_list = []
+    start_date = datetime.strptime('2013-08-01', '%Y-%m-%d')
+    end_date = datetime.strptime('2020-04-01', '%Y-%m-%d')
+
+    while start_date <= end_date:
+        start_date_list.append(start_date.strftime('%Y-%m-%d'))
+        start_date += relativedelta(months=1)    
 
 
-for start_date in start_date_list:
-    CONFIG['start_date'] = start_date
-    #end_date 为start_date + 5年, 保持格式为'YYYY-MM-DD'
-    CONFIG['end_date'] = (datetime.strptime(start_date, '%Y-%m-%d') + timedelta(days=365*5)).strftime('%Y-%m-%d')
-    
-
-    # 创建回测实例  
-    backtest = PortfolioBacktest(CONFIG)
+    for start_date in start_date_list:
+        CONFIG['start_date'] = start_date
+        #end_date 为start_date + 5年, 保持格式为'YYYY-MM-DD'
+        CONFIG['end_date'] = (datetime.strptime(start_date, '%Y-%m-%d') + timedelta(days=365*5)).strftime('%Y-%m-%d')
         
-    # 运行回测
-    backtest.run_backtest()
 
-    # 创建分析器实例
-    analyzer = PortfolioAnalyzer(backtest.get_results())
+        # 创建回测实例  
+        backtest = PortfolioBacktest(CONFIG)
+            
+        # 运行回测
+        backtest.run_backtest()
 
-    # 分析结果
-    portfolio_return_analysis = analyzer.calculate_portfolio_return()
+        # 创建分析器实例
+        analyzer = PortfolioAnalyzer(backtest.get_results())
 
-    # 保留两位小数
-    anualized_return_list.append(round(portfolio_return_analysis['annualized_portfolio_return']*100, 2)) 
-    max_drawdown_list.append(round(analyzer.calculate_portfolio_max_drawdown()[0]['max_drawdown'], 2)) 
+        # 分析结果
+        portfolio_return_analysis = analyzer.calculate_portfolio_return()
 
-print("-"*100)
-print("年化收益率:", anualized_return_list)
-print("最大值：",max(anualized_return_list))
-print("最小值：",min(anualized_return_list))
-print(f"平均值：{statistics.mean(anualized_return_list):.2f}")
-print(f"中位数：{statistics.median(anualized_return_list):.2f}")
-print(f"标准差：{statistics.stdev(anualized_return_list):.2f}")
+        # 保留两位小数
+        anualized_return_list.append(round(portfolio_return_analysis['annualized_portfolio_return']*100, 2)) 
+        max_drawdown_list.append(round(analyzer.calculate_portfolio_max_drawdown()[0]['max_drawdown'], 2)) 
 
-print("-"*100)
-print("最大回撤:", max_drawdown_list)
-print("最大值：",max(max_drawdown_list))
-print("最小值：",min(max_drawdown_list))
-print(f"平均值：{statistics.mean(max_drawdown_list):.2f}")
-print(f"中位数：{statistics.median(max_drawdown_list):.2f}")
-print(f"标准差：{statistics.stdev(max_drawdown_list):.2f}")
+    print("-"*100)
+    print("年化收益率:", anualized_return_list)
+    print("最大值：",max(anualized_return_list))
+    print("最小值：",min(anualized_return_list))
+    print(f"平均值：{statistics.mean(anualized_return_list):.2f}")
+    print(f"中位数：{statistics.median(anualized_return_list):.2f}")
+    print(f"标准差：{statistics.stdev(anualized_return_list):.2f}")
+
+    print("-"*100)
+    print("最大回撤:", max_drawdown_list)
+    print("最大值：",max(max_drawdown_list))
+    print("最小值：",min(max_drawdown_list))
+    print(f"平均值：{statistics.mean(max_drawdown_list):.2f}")
+    print(f"中位数：{statistics.median(max_drawdown_list):.2f}")
+    print(f"标准差：{statistics.stdev(max_drawdown_list):.2f}")
