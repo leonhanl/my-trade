@@ -3,7 +3,8 @@ import sqlite3
 import os
 import pandas as pd
 from datetime import timedelta, date, datetime
-from trading_products import TRADING_PRODUCTS
+from common.trading_products import TRADING_PRODUCTS
+from common.constants import DB_PATH
 
 def update_stock_price_data_to_today(symbol):
     """更新股票价格数据到最新日期，支持美股、中国ETF、中国指数"""
@@ -23,7 +24,7 @@ def update_stock_price_data_to_today(symbol):
         print(f"{symbol} 不支持的市场类型")
         return
         
-    conn = sqlite3.connect('trade_data.db')
+    conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
 
     # 查询最新的数据日期
@@ -129,7 +130,7 @@ def update_cn_fund_nav_to_today(symbol):
         print(f"未找到 {symbol} 的配置信息或不是中国基金")
         return
         
-    conn = sqlite3.connect('trade_data.db')
+    conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
 
     # 查询最新的数据日期
@@ -196,7 +197,7 @@ def update_cn_fund_nav_to_today(symbol):
 
 if __name__ == "__main__":
     # 确保数据库文件存在
-    if not os.path.exists('trade_data.db'):
+    if not os.path.exists(DB_PATH):
         print("数据库文件不存在，请先创建数据库")
         exit(1)
 

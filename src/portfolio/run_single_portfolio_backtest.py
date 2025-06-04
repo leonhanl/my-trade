@@ -22,11 +22,12 @@
 2. 可视化图表：
    - 生成portfolio_return_analysis.png文件，展示投资组合收益走势
 """
+
 from pprint import pprint
-from portfolio_backtest import PortfolioBacktest, check_portfolio_config
-from portfolio_analyzer import PortfolioAnalyzer
-from portfolio_visualizer import PortfolioVisualizer
-from trading_products import TRADING_PRODUCTS
+from portfolio.portfolio_backtest import PortfolioBacktest, check_portfolio_config
+from portfolio.portfolio_analyzer import PortfolioAnalyzer
+from portfolio.portfolio_visualizer import PortfolioVisualizer
+from common.trading_products import TRADING_PRODUCTS
 
 
 CONFIG = {
@@ -43,42 +44,46 @@ CONFIG = {
     'drift_threshold': 0.2 # 当某个资产的持仓价值偏离预设值的20%时进行再平衡, 当rebalance_strategy为'DRIFT_REBALANCE'时有效
 }
 
-# 检查配置
-error_code, error_msg = check_portfolio_config(CONFIG)
-if error_code != 0:
-    print(error_msg)
-    exit(error_code)
 
 
-# 创建回测实例
-backtest = PortfolioBacktest(CONFIG)
-    
-# 运行回测
-backtest.run_backtest()
-    
-# 获取回测结果
-results = backtest.get_results()
-    
-# 使用可视化器绘制结果
-visualizer = PortfolioVisualizer()
-visualizer.plot_portfolio_returns(results, 'portfolio_return_analysis.png')
+if __name__ == "__main__":
 
-# 创建分析器实例
-analyzer = PortfolioAnalyzer(results)
+    # 检查配置
+    error_code, error_msg = check_portfolio_config(CONFIG)
+    if error_code != 0:
+        print(error_msg)
+        exit(error_code)
 
-# 分析结果
-portfolio_return_analysis = analyzer.calculate_portfolio_return()
 
-# 输出分析结果
-print("\n回测结果分析")
-print(f"总收益率: {portfolio_return_analysis['portfolio_return']*100:.2f}%")
-print(f"年化收益率: {portfolio_return_analysis['annualized_portfolio_return']*100:.2f}%")
+    # 创建回测实例
+    backtest = PortfolioBacktest(CONFIG)
+        
+    # 运行回测
+    backtest.run_backtest()
+        
+    # 获取回测结果
+    results = backtest.get_results()
+        
+    # 使用可视化器绘制结果
+    visualizer = PortfolioVisualizer()
+    visualizer.plot_portfolio_returns(results, 'portfolio_return_analysis.png')
 
-# 计算最大回撤
-max_drawdowns = analyzer.calculate_portfolio_max_drawdown()
-print("\n最大回撤分析:")
-for i, drawdown in enumerate(max_drawdowns, 1):
-    print(f"第{i}大回撤 - 回撤幅度: {drawdown['max_drawdown']:.2f}%, 持续时间: {drawdown['drawdown_length']}天，恢复时间: {drawdown['recovery_length']}天") 
+    # 创建分析器实例
+    analyzer = PortfolioAnalyzer(results)
+
+    # 分析结果
+    portfolio_return_analysis = analyzer.calculate_portfolio_return()
+
+    # 输出分析结果
+    print("\n回测结果分析")
+    print(f"总收益率: {portfolio_return_analysis['portfolio_return']*100:.2f}%")
+    print(f"年化收益率: {portfolio_return_analysis['annualized_portfolio_return']*100:.2f}%")
+
+    # 计算最大回撤
+    max_drawdowns = analyzer.calculate_portfolio_max_drawdown()
+    print("\n最大回撤分析:")
+    for i, drawdown in enumerate(max_drawdowns, 1):
+        print(f"第{i}大回撤 - 回撤幅度: {drawdown['max_drawdown']:.2f}%, 持续时间: {drawdown['drawdown_length']}天，恢复时间: {drawdown['recovery_length']}天") 
 
 
 

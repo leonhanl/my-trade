@@ -32,7 +32,7 @@ import statistics
 from portfolio_backtest import PortfolioBacktest, check_portfolio_config
 from portfolio_analyzer import PortfolioAnalyzer
 from portfolio_visualizer import PortfolioVisualizer
-from trading_products import TRADING_PRODUCTS
+from common.trading_products import TRADING_PRODUCTS
 
 
 CONFIG = {

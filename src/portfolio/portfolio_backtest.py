@@ -6,9 +6,9 @@ import pandas as pd
 from datetime import datetime
 from typing import Dict, List
 import logging
-from trading_products import TRADING_PRODUCTS
-from data_loader import DataLoader
-from config_validator import check_portfolio_config
+from common.trading_products import TRADING_PRODUCTS
+from portfolio.data_loader import DataLoader
+from portfolio.config_validator import check_portfolio_config
 
 # 配置日志记录器
 logger = logging.getLogger(__name__)
@@ -172,5 +172,9 @@ class PortfolioBacktest:
         logger.debug("\n回测结果:\n" + str(self.portfolio_data))
 
     
+
+   
+
+
 
    

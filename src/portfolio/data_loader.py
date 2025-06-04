@@ -5,11 +5,12 @@
 import pandas as pd
 import sqlite3
 from typing import List
+from common.constants import DB_PATH
 
 class DataLoader:
     def __init__(self):
         """初始化数据加载器，设置数据库路径"""
-        self.db_path = 'trade_data.db'
+        self.db_path = DB_PATH
         
     def load_portfolio_data(self, symbols: List[str], start_date: str, end_date: str) -> pd.DataFrame:
         """

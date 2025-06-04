@@ -5,8 +5,10 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 from datetime import datetime
+import os
 from typing import Dict
-from trading_products import TRADING_PRODUCTS
+from common.trading_products import TRADING_PRODUCTS
+from common.constants import PROJECT_ROOT
 
 # 设置matplotlib中文字体
 plt.rcParams['font.sans-serif'] = ['SimHei']  # 用来正常显示中文标签

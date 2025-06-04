@@ -4,7 +4,7 @@
 """
 from datetime import datetime
 from typing import Dict
-from trading_products import TRADING_PRODUCTS
+from common.trading_products import TRADING_PRODUCTS
 
 def check_portfolio_config(config: Dict) -> tuple[int, str]:
     """
