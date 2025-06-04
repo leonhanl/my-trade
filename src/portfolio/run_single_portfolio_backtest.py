@@ -29,7 +29,6 @@ from portfolio.portfolio_analyzer import PortfolioAnalyzer
 from portfolio.portfolio_visualizer import PortfolioVisualizer
 from common.trading_products import TRADING_PRODUCTS
 
-
 CONFIG = {
     'target_percentage': {
         'SPY': 0.20,  # 标普500ETF
@@ -43,6 +42,8 @@ CONFIG = {
     'rebalance_strategy': 'DRIFT_REBALANCE', # 可选参数为'DRIFT_REBALANCE'或'ANNUAL_REBALANCE'或者'NO_REBALANCE'
     'drift_threshold': 0.2 # 当某个资产的持仓价值偏离预设值的20%时进行再平衡, 当rebalance_strategy为'DRIFT_REBALANCE'时有效
 }
+
+
 
 
 
@@ -66,7 +67,7 @@ if __name__ == "__main__":
         
     # 使用可视化器绘制结果
     visualizer = PortfolioVisualizer()
-    visualizer.plot_portfolio_returns(results, 'portfolio_return_analysis.png')
+    visualizer.plot_portfolio_returns(results, './portfolio/portfolio_return_analysis.png')
 
     # 创建分析器实例
     analyzer = PortfolioAnalyzer(results)
