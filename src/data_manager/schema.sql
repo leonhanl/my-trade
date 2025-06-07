@@ -76,3 +76,9 @@ SELECT
     nav as close,
     NULL as pe_ttm  -- 基金没有 PE-TTM，用 NULL 填充
 FROM fund_nav;
+
+-- 更新错误数据
+UPDATE stock_price SET open = 1158.553, close=1159.458, high=1162.882, low=1147.351 WHERE trade_date = '2025-06-02'
+UPDATE stock_price SET open =1165.160, close=1166.071, high=1169.513, low=1153.894 WHERE trade_date = '2025-06-03'
+
+	
