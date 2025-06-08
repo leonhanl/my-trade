@@ -9,7 +9,7 @@ from matplotlib.dates import MonthLocator, DateFormatter  # Add this import
 conn = sqlite3.connect('trade_data.db')  # 请替换为您的数据库文件路径
 
 # 参数化起止日期
-START_DATE = '2015-01-01'
+START_DATE = '2010-06-01'
 END_DATE = '2025-06-01'
 
 # 查询SPY最近10年的数据，限制时间段以减少数据量
@@ -66,7 +66,7 @@ ax1.legend(lines1 + lines2, labels1 + labels2, loc='upper left')
 
 # 优化x轴日期显示
 ax1.xaxis.set_major_locator(MonthLocator(interval=3))  # 每3个月显示一个刻度
-ax1.xaxis.set_major_formatter(DateFormatter('%Y-%m'))  # 设置日期格式为"年-月"
+ax1.xaxis.set_major_formatter(DateFormatter('%y%m'))  # 设置日期格式为"年月"，如2201
 plt.xticks(rotation=45)
 fig.tight_layout()
 
